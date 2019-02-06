@@ -153,7 +153,7 @@
       <td-data-table
         #dataTable
         [data]="data"
-        [columns]="columns"
+        [columns]="columns$ | async"
         [sortable]="true"
         [selectable]="true"
         [multiple]="false"

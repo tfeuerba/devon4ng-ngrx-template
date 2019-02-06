@@ -14,7 +14,7 @@ import { SampleDataService } from '../services/sampledata.service';
 import { AuthService } from '../../core/security/auth.service';
 import { SampleDataDialogComponent } from '../../sampledata/sampledata-dialog/sampledata-dialog.component';
 import { Pageable } from '../../core/interfaces/pageable';
-import { Observable } from 'rxjs';
+import {Observable, of} from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.states';
 import {
@@ -24,6 +24,7 @@ import {
   LoadDataSuccess,
 } from '../store/actions/sampledata.actions';
 import { Sampledata } from '../models/sampledata.model';
+import {map, switchMap, tap} from "rxjs/operators";
 
 @Component({
   selector: 'public-app-sampledata-grid-display',
@@ -49,30 +50,31 @@ export class SampleDataGridComponent implements OnInit {
   @ViewChild('pagingBar') pagingBar: TdPagingBarComponent;
   @ViewChild('dataTable') dataTable: TdDataTableComponent;
   data: any = [];
-  columns: ITdDataTableColumn[] = [
+
+  columns$: Observable<ITdDataTableColumn[]> = of([
     {
       name: 'name',
-      label: this.getTranslation(
-        'sampledatamanagement.SampleData.columns.name',
-      ),
+      label: 'sampledatamanagement.SampleData.columns.name',
     },
     {
       name: 'surname',
-      label: this.getTranslation(
-        'sampledatamanagement.SampleData.columns.surname',
-      ),
+      label: 'sampledatamanagement.SampleData.columns.surname',
     },
     {
       name: 'age',
-      label: this.getTranslation('sampledatamanagement.SampleData.columns.age'),
+      label: 'sampledatamanagement.SampleData.columns.age',
     },
     {
       name: 'mail',
-      label: this.getTranslation(
-        'sampledatamanagement.SampleData.columns.mail',
-      ),
+      label: 'sampledatamanagement.SampleData.columns.mail',
     },
-  ];
+  ]).pipe(
+    switchMap(columns => this.translate.stream(columns.map(c => c.label))
+        .pipe(map(translations => columns.map(column => (
+          {...column,
+            label: translations[column.label]
+          }))),
+    )));
   pageSize: number = 8;
   pageSizes: number[] = [8, 16, 24];
   selectedRow: any;
@@ -132,24 +134,9 @@ export class SampleDataGridComponent implements OnInit {
       );
   }
   getTranslation(text: string): string {
-    let value: string;
-    this.translate.get(text).subscribe((res: string) => {
-      value = res;
-    });
-    this.translate.onLangChange.subscribe(() => {
-      this.columns.forEach((column: any) => {
-        if (text.endsWith(column.name)) {
-          this.translate
-            .get('sampledatamanagement.SampleData.columns.' + column.name)
-            .subscribe((res: string) => {
-              column.label = res;
-            });
-        }
-      });
-      this.dataTable.refresh();
-    });
-    return value;
+    return this.translate.instant(text);
   }
+
   page(pagingEvent: IPageChangeEvent): void {
     this.pageable = {
       pageSize: pagingEvent.pageSize,

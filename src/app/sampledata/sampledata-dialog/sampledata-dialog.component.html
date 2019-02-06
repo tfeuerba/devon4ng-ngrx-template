@@ -1,4 +1,4 @@
-<h1 mat-dialog-title>{{ title }}</h1>
+<h1 mat-dialog-title>{{ titleTranslationKey | translate }}</h1>
 <form (ngSubmit)="dialogRef.close(items)" #dialogForm="ngForm">
   <mat-form-field>
     <input

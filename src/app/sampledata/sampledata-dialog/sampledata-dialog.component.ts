@@ -8,7 +8,7 @@ import { Sampledata } from '../models/sampledata.model';
   templateUrl: './sampledata-dialog.component.html',
 })
 export class SampleDataDialogComponent {
-  title: string;
+  titleTranslationKey: string;
   items: any = {
     name: '',
     surname: '',
@@ -22,18 +22,10 @@ export class SampleDataDialogComponent {
     @Inject(MAT_DIALOG_DATA) dialogData: any,
   ) {
     if (!dialogData) {
-      this.title = this.getTranslation('sampledatamanagement.addTitle');
+      this.titleTranslationKey = 'sampledatamanagement.addTitle';
     } else {
-      this.title = this.getTranslation('sampledatamanagement.editTitle');
+      this.titleTranslationKey = 'sampledatamanagement.editTitle';
       this.items = dialogData;
     }
-  }
-
-  getTranslation(text: string): string {
-    let value: string;
-    this.translate.get(text).subscribe((res: any) => {
-      value = res;
-    });
-    return value;
   }
 }
